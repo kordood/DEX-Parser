@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 typedef unsigned char ubyte;
 typedef unsigned int uint;
 typedef unsigned long ulong;
