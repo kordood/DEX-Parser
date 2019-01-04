@@ -10,11 +10,12 @@ int main(){
 		printf("WRONG!\n");
 	}
 	else{
-	char binary[10];
+		char binary[10];
+		read(fp, binary, sizeof(char)*10);
 
-	read(fp, binary, sizeof(char)*10);
-
-	printf("%02x", binary);
+		for(size_t i = 0; i < 10; i++){
+			printf("%02x", binary[i]);
+		}
 	}
 
 	close(fp);
