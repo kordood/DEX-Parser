@@ -1,12 +1,4 @@
-#include <stdio.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <stdint.h>
-
-void isLittleEndian(uint32_t fp);
-uint32_t getHeaderSize(uint32_t fp);
-
-_Bool littleEndian = 1;
+#include "dexparser.h"
 
 int main(){
 	uint32_t fp;
