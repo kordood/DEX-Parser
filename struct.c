@@ -1,32 +1,29 @@
 #include <stdio.h>
-
-typedef unsigned char ubyte;
-typedef unsigned int uint;
-typedef unsigned long ulong;
+#include <stdint.h>
 
 typedef struct header_item{
-ubyte magic[8];
-uint checksum;
-ubyte signature[20];
-uint file_size;
-uint header_size;
-uint endian_tag;
-uint linksize;
-uint map_off;
-uint string_ids_size;
-uint string_ids_off;
-uint type_ids_size;
-uint type_ids_off;
-uint proto_ids_size;
-uint proto_ids_off;
-uint field_ids_size;
-uint field_ids_off;
-uint method_ids_size;
-uint method_ids_off;
-uint class_defs_size;
-uint class_defs_off;
-uint data_size;
-uint data_off;
+uint8_t magic[8];
+uint32_t checksum;
+uint8_t signature[20];
+uint32_t file_size;
+uint32_t header_size;
+uint32_t endian_tag;
+uint32_t linksize;
+uint32_t map_off;
+uint32_t string_ids_size;
+uint32_t string_ids_off;
+uint32_t type_ids_size;
+uint32_t type_ids_off;
+uint32_t proto_ids_size;
+uint32_t proto_ids_off;
+uint32_t field_ids_size;
+uint32_t field_ids_off;
+uint32_t method_ids_size;
+uint32_t method_ids_off;
+uint32_t class_defs_size;
+uint32_t class_defs_off;
+uint32_t data_size;
+uint32_t data_off;
 } header_item;
 
 
