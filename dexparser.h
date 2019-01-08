@@ -1,12 +1,8 @@
 #include <stdio.h>
+#include <stdint.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <stdint.h>
-
-void isLittleEndian(uint32_t fp);
-uint32_t getHeaderSize(uint32_t fp);
-
-_Bool littleEndian = 1;
+#include <memory.h>
 
 typedef struct header_item{
 uint8_t magic[8];
@@ -32,3 +28,10 @@ uint32_t class_defs_off;
 uint32_t data_size;
 uint32_t data_off;
 } header_item;
+
+void isLittleEndian(uint32_t fp);
+uint32_t getHeaderSize(uint32_t fp);
+void header_slice(uint32_t fp, uint32_t header_size);
+
+_Bool littleEndian = 1;
+header_item *pHeader;
