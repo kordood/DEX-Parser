@@ -1,4 +1,5 @@
 #include "dexparser.h"
+#include <stdlib.h>
 
 int main(){
 	uint32_t fp;
@@ -11,15 +12,16 @@ int main(){
 	else{
 		isLittleEndian(fp);
 		header_size = getHeaderSize(fp);
-		printf("%d\n", header_size);
+		pHeader = (header_item *) malloc(sizeof(header_item));
 		lseek(fp, 0, SEEK_SET);
-		uint8_t binary[header_size];
-		read(fp, binary, sizeof(uint8_t)*header_size);
+		uint8_t header[header_size];
+		read(fp, header, sizeof(uint8_t)*header_size);
+
+		header_slice(fp, header_size);
 
 		for(size_t i = 0; i < header_size; i++){
-			printf("%02x", binary[i]);
+			printf("%02x", header[i]);
 		}
-		printf("%d\n", header_size);
 	}
 
 	close(fp);
@@ -52,4 +54,15 @@ uint32_t getHeaderSize(uint32_t fp){	// default: LittleEndian, have to make proc
 	printf("%d\n", header_size);
 
 	return header_size;
+}
+
+void header_slice(uint32_t fp, uint32_t header_size){
+	read(fp, pHeader, sizeof(uint8_t)*header_size);
+
+	for(size_t i = 0; i < 8; i++){
+		printf("%02x", pHeader->magic[i]);
+	}
+	printf("magic\n");
+	
+
 }
