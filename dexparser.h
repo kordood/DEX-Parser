@@ -34,6 +34,7 @@ typedef struct pChunk_item{
 	uint32_t *pLink;
 	uint32_t *pString_ids;
 	uint32_t *pMap;
+//	uint32_t pMap_size;
 	uint32_t *pType_ids;
 	uint32_t *pProto_ids;
 	uint32_t *pField_ids;
@@ -42,13 +43,27 @@ typedef struct pChunk_item{
 	uint32_t *pData;
 } pChunk_item;
 
+typedef struct map_item{
+	uint32_t size;
+	uint32_t *pList;
+} map_item;
+
+typedef struct map_item_format{
+	uint16_t type;
+	uint16_t unused;
+	uint32_t size;
+	uint32_t offset;
+} map_format;
+
 void isLittleEndian(uint32_t fp);
 uint32_t getHeaderSize(uint32_t fp);
 void header_slice(uint32_t fp, uint32_t header_size);
-void init_pChunk();
 void *make_chunk(uint32_t fp, void *p, uint32_t offset, uint32_t size);
+void alloc_chunk(uint32_t fp, uint32_t * pItem, uint32_t offset, uint32_t size);
+void init_chunk(uint32_t fp);
 void print_header();
 
 _Bool littleEndian = 1;
 header_item *pHeader;
-pChunk_item *pChunk;
+pChunk_item Chunk;
+map_item map;

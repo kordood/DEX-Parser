@@ -1,6 +1,11 @@
 #include "dexparser.h"
 #include <stdlib.h>
 
+
+void alloc_chunk(uint32_t fp, uint32_t * pItem, uint32_t offset, uint32_t size);
+void init_chunk(uint32_t fp);
+void print_chunk(uint32_t * pItem, uint32_t size);
+
 int main(){
 	uint32_t fp;
 	uint32_t header_size;
@@ -13,22 +18,22 @@ int main(){
 		isLittleEndian(fp);
 		header_size = getHeaderSize(fp);
 		pHeader = mmap(0, sizeof(header_item), PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);		//pHeader = (header_item *) malloc(sizeof(header_item));
-		pChunk = (pChunk_item *) malloc(sizeof(pChunk_item));
 
 		header_slice(fp, header_size);
-		pChunk->pString_ids = (uint32_t *)mmap(0, sizeof(uint32_t) * pHeader->string_ids_size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);		//pChunk->pString_ids = (uint32_t *) malloc(sizeof(uint32_t) * pHeader->string_ids_size);
-		printf("size and offset is %d\n%d\n", pHeader->string_ids_size, pHeader->string_ids_off);
-		pChunk->pString_ids = (uint32_t *)make_chunk(fp, (uint32_t *)pChunk->pString_ids, pHeader->string_ids_off, sizeof(uint32_t) * pHeader->string_ids_size);
-		for(size_t i = 0; i < pHeader->string_ids_size; i++){
-			printf("%08x ", pChunk->pString_ids[i]);
-			if(((i+1) % 4) == 0 && i > 0){
-				printf("\n");
-			}
-		}
+		init_chunk(fp);
 	}
 
 	close(fp);
 
+	munmap(pHeader, sizeof(header_item));
+	munmap(Chunk.pLink, sizeof(uint32_t) * pHeader->link_size);
+/*	munmap(Chunk.pString_ids, sizeof(uint32_t) * pHeader->string_ids_size);
+	munmap(Chunk.pType_ids, sizeof(uint32_t) * pHeader->type_ids_size);
+	munmap(Chunk.pProto_ids, sizeof(uint32_t) * pHeader->proto_ids_size);
+	munmap(Chunk.pField_ids, sizeof(uint32_t) * pHeader->field_ids_size);
+	munmap(Chunk.pMethod_ids, sizeof(uint32_t) * pHeader->method_ids_size);
+	munmap(Chunk.pClass_defs, sizeof(uint32_t) * pHeader->class_defs_size);
+*/
 	return 0;
 }
 
@@ -71,6 +76,40 @@ void *make_chunk(uint32_t fp,void *p, uint32_t offset, uint32_t size){
 	
 	return p;
 }
+
+void alloc_chunk(uint32_t fp, uint32_t * pItem, uint32_t offset, uint32_t size){
+	pItem = (uint32_t *)mmap(0, sizeof(uint32_t) * size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);		//pChunk->pString_ids = (uint32_t *) malloc(sizeof(uint32_t) * pHeader->string_ids_size);
+	pItem = (uint32_t *)make_chunk(fp, (uint32_t *)pItem, offset, sizeof(uint32_t) * size);
+	// print_chunk(pItem, size);
+}
+
+void init_chunk(uint32_t fp){
+	alloc_chunk(fp, Chunk.pLink, pHeader->link_off, pHeader->link_size);
+	alloc_chunk(fp, Chunk.pString_ids, pHeader->string_ids_off, pHeader->string_ids_size);
+	alloc_chunk(fp, Chunk.pType_ids, pHeader->type_ids_off, pHeader->type_ids_size);
+	alloc_chunk(fp, Chunk.pProto_ids, pHeader->proto_ids_off, pHeader->proto_ids_size);
+	alloc_chunk(fp, Chunk.pField_ids, pHeader->field_ids_off, pHeader->field_ids_size);
+	alloc_chunk(fp, Chunk.pMethod_ids, pHeader->method_ids_off, pHeader->method_ids_size);
+	alloc_chunk(fp, Chunk.pClass_defs, pHeader->class_defs_off, pHeader->class_defs_size);
+
+	lseek(fp, pHeader->map_off, SEEK_SET);
+	read(fp, &map.size, sizeof(uint32_t));
+	printf("map size is %d\n", map.size);
+	map.pList = (uint32_t *)mmap(0, sizeof(uint32_t) * map.size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+	alloc_chunk(fp, map.pList, pHeader->map_off, map.size);
+	print_chunk(map.pList, map.size);
+}
+
+void print_chunk(uint32_t * pItem, uint32_t size){
+	for(size_t i = 0; i < size; i++){
+		printf("%08x ", pItem[i]);
+		if(((i+1) % 4) == 0 && i > 0){
+			printf("\n");
+		}
+	}
+	printf("\n");
+}
+
 
 void print_header(){
 	uint8_t *tmp = "";
@@ -126,3 +165,4 @@ void print_header(){
 
 	printf("%08x %-52s data_off\n", pHeader->data_off, tmp);
 }
+
