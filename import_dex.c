@@ -35,10 +35,10 @@ void isLittleEndian(uint32_t fp){
 	read(fp, &endian, sizeof(uint32_t));
 
 	if(endian == 0x12345678){
-		littleEndian = 1;
+		littleEndian = TRUE;
 	}
 	else if(endian == 0x78563412){
-		littleEndian = 0;
+		littleEndian = FALSE;
 	}
 	else{
 		printf("not type\n");
