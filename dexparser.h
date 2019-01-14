@@ -128,3 +128,4 @@ typedef struct encoded_method{
 header_item *pHeader;
 //pChunk_item *pChunk;
 map_list map;
+uint32_t *address;
