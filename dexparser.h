@@ -8,6 +8,8 @@
 #define FALSE 0
 #define HEADER_FRONT 11
 
+typedef uint8_t uleb128;
+
 typedef struct header_item{
 	uint8_t magic[8];
 	uint32_t checksum;
@@ -94,6 +96,12 @@ typedef struct method_handle_item{
 	uint16_t field_or_method_id;
 	uint16_t unused_2;
 } method_handle_item;
+
+typedef struct string_data_item{
+	uint32_t string_data_off;
+	uleb128 utf16_size;
+	uint8_t *data;
+}	string_data_item;
 /*
 typedef struct class_data_item{
 	uleb128 static_fields_size;
@@ -118,5 +126,4 @@ typedef struct encoded_method{
 }encoded_field;
 */
 header_item *pHeader;
-pChunk_item *pChunk;
 map_list map;
