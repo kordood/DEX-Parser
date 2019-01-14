@@ -126,6 +126,4 @@ typedef struct encoded_method{
 }encoded_field;
 */
 header_item *pHeader;
-//pChunk_item *pChunk;
 map_list map;
-uint32_t *address;
