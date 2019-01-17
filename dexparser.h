@@ -97,7 +97,7 @@ typedef struct method_handle_item{
 } method_handle_item;
 
 typedef struct string_data_item{
-	uint32_t string_data_off;
+//	uint32_t string_data_off;
 	uleb128 utf16_size;
 	uint8_t *data;
 }	string_data_item;
