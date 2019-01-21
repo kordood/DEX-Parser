@@ -15,6 +15,7 @@ void initList_string_ids_offset(uint32_t fp, string_data_item *pString_list, pCh
 		pString_list[i].data = mmap(0, sizeof(uint8_t) * (pString_list[i]).utf16_size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
 		//printf("%d: %p\n", i, (pString_list[i]).data);
 		read(fp, pString_list[i].data, sizeof(uint8_t) * (pString_list[i]).utf16_size);
+			printf("%d: ", i);
 		for(size_t j = 0; j < pString_list[i].utf16_size; j++){
 			printf("%c", pString_list[i].data[j]);
 		}
