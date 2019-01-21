@@ -97,10 +97,18 @@ typedef struct method_handle_item{
 } method_handle_item;
 
 typedef struct string_data_item{
-	uint32_t string_data_off;
+//	uint32_t string_data_off;
 	uleb128 utf16_size;
 	uint8_t *data;
 }	string_data_item;
+
+typedef uint16_t type_item;
+
+typedef struct type_list{
+	uint32_t size;
+	type_item *list;
+} type_list;
+
 /*
 typedef struct class_data_item{
 	uleb128 static_fields_size;

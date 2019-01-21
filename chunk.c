@@ -22,22 +22,19 @@ void make_chunk(uint32_t fp, pChunk_item **pChunk){
     read(fp, &map.size, sizeof(uint32_t));
 	read_chunk(fp, map.pList, pHeader->map_off, sizeof(map_item) * map.size);	// have to make "read_mapChunk"?
 
-
-	print_chunk((**pChunk).pLink, sizeof(uint32_t), sizeof(uint32_t) * pHeader->link_size);
-	print_chunk((**pChunk).pString_ids, sizeof(uint32_t),  sizeof(uint32_t) * pHeader->string_ids_size);
-	print_chunk((**pChunk).pType_ids, sizeof(uint32_t), sizeof(uint32_t) * pHeader->type_ids_size);
+/*
 	print_chunk((**pChunk).pProto_ids, sizeof(proto_id_item), sizeof(proto_id_item) * pHeader->proto_ids_size);
 	print_chunk((**pChunk).pField_ids, sizeof(field_id_item), sizeof(field_id_item) * pHeader->field_ids_size);
 	print_chunk((**pChunk).pMethod_ids, sizeof(method_id_item), sizeof(method_id_item) * pHeader->method_ids_size);
 	print_chunk((**pChunk).pClass_defs, sizeof(class_def_item), sizeof(class_def_item) * pHeader->class_defs_size);
-
+*/
 	//print_chunk(map.pList, map.size);
 }
 
 void read_chunk(uint32_t fp, void *pItem, uint32_t offset, uint32_t size){
     lseek(fp, offset, SEEK_SET);
     read(fp, pItem, size);
-	printf("\nsize: %d\noffset: %d\npointer: %p\n", size, offset, pItem);
+//	printf("\nsize: %d\noffset: %d\npointer: %p\n", size, offset, pItem);
 }
 
 void delete_chunk(pChunk_item **pChunk){
