@@ -16,7 +16,7 @@ int main(){
 		printf("WRONG!\n");
 	}
 	else{
-		//      isLittleEndian(fp);
+		isLittleEndian(fp);
 		header_size = getHeaderSize(fp);
 		pHeader = mmap(0, sizeof(header_item), PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);     //pHeader = (header_item *) malloc(sizeof(header_item));
 		header_slice(fp, header_size);		// Input data to header
@@ -32,7 +32,7 @@ int main(){
 		initList_type(pType_list, pChunk, pString_list);	// Input data to type list
 
 		print_all(&pChunk, pString_list, pType_list);	// print all items
-		//print_field_ids((*pChunk).pField_ids, pString_list, pType_list, pHeader->field_ids_size);
+		//print_class_defs((*pChunk).pClass_defs, pString_list, pType_list, pHeader->class_defs_size);
 
 		delete_chunk(&pChunk);
 		deleteList_string_ids_offset(pString_list);

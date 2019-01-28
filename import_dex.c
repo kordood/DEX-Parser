@@ -5,11 +5,13 @@ void isLittleEndian(uint32_t fp){
 	lseek(fp, 40, SEEK_SET);
 	read(fp, &endian, sizeof(uint32_t));
 
-	if(endian == 0x12345678){
+	if(endian == ENDIAN_CONSTANT){
 		littleEndian = TRUE;
+		printf("little endian\n");
 	}
-	else if(endian == 0x78563412){
+	else if(endian == REVERSE_ENDIAN_CONSTANT){
 		littleEndian = FALSE;
+		printf("big endian\n");
 	}
 	else{
 		printf("not type\n");
