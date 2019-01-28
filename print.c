@@ -4,7 +4,7 @@ void print_all(pChunk_item **pChunk, string_data_item *pString_list, type_list *
 	print_string_item(pString_list, pHeader->string_ids_size);
 	print_type_list(pType_list);
 	print_link((**pChunk).pLink, pHeader->link_size);
-	print_string_ids((**pChunk).pString_ids, pHeader->string_ids_size);
+	print_string_ids((**pChunk).pString_data_off, pHeader->string_ids_size);
 	print_type_ids((**pChunk).pType_ids, pString_list, pHeader->type_ids_size);
 	print_proto_ids((**pChunk).pProto_ids, pString_list, pType_list, pHeader->proto_ids_size);
 	print_field_ids((**pChunk).pField_ids, pString_list, pType_list, pHeader->field_ids_size);
@@ -43,7 +43,7 @@ void print_link(uint32_t *pItem, uint32_t size){
 void print_string_ids(uint32_t *pItem, uint32_t size){
 	printf("\n<string_id_item>\nsize: %d\n", size);
 	for(size_t i = 0; i < size; i++){
-		printf("%08x ", pItem[i]);      //  printf("%08x ", (**pChunk).pString_ids[i]);
+		printf("%08x ", pItem[i]);      //  printf("%08x ", (**pChunk).pString_data_off[i]);
 		if(((i+1) % 4) == 0 && i > 0){
 			printf("\n");
 		}
