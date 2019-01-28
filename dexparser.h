@@ -103,9 +103,11 @@ typedef struct class_def_item{
 	uint32_t static_values_off;
 } class_def_item;
 
+typedef uint32_t string_id_item;
+
 typedef struct pChunk_item{
 	uint32_t *pLink;
-	uint32_t *pString_ids;
+	string_id_item *pString_data_off;
 	uint32_t *pMap;
 	uint32_t *pType_ids;
 	proto_id_item *pProto_ids;
@@ -157,6 +159,29 @@ typedef struct class_data_item{
 	encoded_method *direct_methods;
 	encoded_method *virtual_methods;
 } class_data_item;
+
+typedef struct encoded_value{
+	uint8_t value_type;
+	uint8_t *value;
+} encoded_value;
+
+typedef struct annotation_element{
+	uleb128 name_idx;
+	encoded_value value;
+} annotation_element;
+
+typedef struct file_layout{
+	header_item header;
+	string_id_item *string_ids;
+	//type_id_item *type_ids;
+	proto_id_item *proto_ids;
+	field_id_item *field_ids;
+	method_id_item *method_ids;
+	class_def_item *class_defs;
+	method_handle_item *method_handles;
+	uint8_t *data;
+	uint8_t *link_data;
+} file_layout;
 
 header_item *pHeader;
 map_list map;
