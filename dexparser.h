@@ -109,7 +109,18 @@ typedef struct type_list{
 	type_item *list;
 } type_list;
 
-/*
+// need to learn about uleb128
+typedef struct encoded_field{
+	uleb128 field_idx_diff;
+	uleb128 access_flags;
+} encoded_field;
+
+typedef struct encoded_method{
+	uleb128 method_idx_diff;
+	uleb128 access_flags;
+	uleb128 code_off;
+} encoded_method;
+
 typedef struct class_data_item{
 	uleb128 static_fields_size;
 	uleb128 instance_fields_size;
@@ -121,16 +132,5 @@ typedef struct class_data_item{
 	encoded_method *virtual_methods;
 } class_data_item;
 
-typedef struct encoded_field{
-	uleb128 field_idx_diff;
-	uleb128 access_flags;
-}encoded_field;
-
-typedef struct encoded_method{
-	uleb128 method_idx_diff;
-	uleb128 access_flags;
-	uleb128 code_off;
-}encoded_field;
-*/
 header_item *pHeader;
 map_list map;

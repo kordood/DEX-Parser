@@ -34,6 +34,7 @@ void header_slice(uint32_t fp, uint32_t header_size){
 }
 
 void print_header(){
+	printf("\n<Header>\n");
 	uint8_t *tmp = "";
 	for(size_t i = 0; i < 8; i++){
 		printf("%02x", pHeader->magic[i]);
