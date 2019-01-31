@@ -1,14 +1,20 @@
 #include "print.h"
 
-void print_all(pChunk_item **pChunk, string_data_item *pString_list, type_list *pType_list){
+//using typeList(string view) example: printf("%-40s\t", pString_list[(*pTypeList).list[pItem[i].return_type_idx]].data);
+
+void print_all(uint32_t fp, pChunk_item **pChunk, string_data_item *pString_list, map_list *mapList){
 	print_string_item(pString_list, pHeader->string_ids_size);
-	print_type_list(pType_list);
+	print_type_list(pString_list);
 	print_link((**pChunk).pLink, pHeader->link_size);
+	/* useless
 	print_string_ids((**pChunk).pString_data_off, pHeader->string_ids_size);
 	print_type_ids((**pChunk).pType_ids, pString_list, pHeader->type_ids_size);
-	print_proto_ids((**pChunk).pProto_ids, pString_list, pType_list, pHeader->proto_ids_size);
-	print_field_ids((**pChunk).pField_ids, pString_list, pType_list, pHeader->field_ids_size);
-	print_class_defs((**pChunk).pClass_defs, pString_list, pType_list, pHeader->class_defs_size);
+	*/
+	print_proto_ids((**pChunk).pProto_ids, pString_list, pHeader->proto_ids_size);
+	print_field_ids((**pChunk).pField_ids, pString_list, pHeader->field_ids_size);
+	print_method_ids((**pChunk).pMethod_ids, pString_list, pHeader->method_ids_size);
+	print_class_defs((**pChunk).pClass_defs, pString_list, pHeader->class_defs_size);
+	print_map_list(mapList);
 }
 
 void print_string_item(string_data_item *pString_list, uint32_t size){
@@ -22,17 +28,17 @@ void print_string_item(string_data_item *pString_list, uint32_t size){
 	}
 }
 
-void print_type_list(type_list *pType_list){
+void print_type_list(string_data_item *pString_list){
 	printf("\n<type list>\n");
-	for(size_t i = 0; i < pHeader->type_ids_size; i++){
-		printf("%d: %s\n", i, pType_list[i].list);
+	for(size_t i = 0; i < typeList.size; i++){
+		printf("%d: %s\n", i, pString_list[typeList.list[i]].data);
 	}
 }
 
 void print_link(uint32_t *pItem, uint32_t size){
 	printf("\n<link>\nsize: %d\n", size);
 	for(size_t i = 0; i < size; i++){
-		printf("%08x ", pItem[i]);      //  printf("%08x ", (**pChunk).pLink[i]);
+		printf("%08x ", pItem[i]);
 		if(((i+1) % 4) == 0 && i > 0){
 			printf("\n");
 		}
@@ -43,7 +49,7 @@ void print_link(uint32_t *pItem, uint32_t size){
 void print_string_ids(uint32_t *pItem, uint32_t size){
 	printf("\n<string_id_item>\nsize: %d\n", size);
 	for(size_t i = 0; i < size; i++){
-		printf("%08x ", pItem[i]);      //  printf("%08x ", (**pChunk).pString_data_off[i]);
+		printf("%08x ", pItem[i]);
 		if(((i+1) % 4) == 0 && i > 0){
 			printf("\n");
 		}
@@ -58,52 +64,79 @@ void print_type_ids(uint32_t *pItem, string_data_item *pString_list, uint32_t si
 	}   
 }
 
-void print_proto_ids(proto_id_item *pItem, string_data_item *pString_list, type_list *pType_list, uint32_t size){
+void print_proto_ids(proto_id_item *pItem, string_data_item *pString_list, uint32_t size){
 	printf("\n<proto_id_item>\nsize: %d\n", size);
 	printf("[shorty_idx]\t[return_type_idx]\t\t\t\t[parameters_off]\n");
 	for(size_t i = 0; i < size; i++){
-		printf("%-10s\t", pString_list[pItem[i].shorty_idx].data);      //  printf("%08x ", (**pChunk).pLink[i]);
-		printf("%-40s\t", pType_list[pItem[i].return_type_idx].list);      //  printf("%08x ", (**pChunk).pLink[i]);
-		printf("%x ", pItem[i].parameters_off);      //  printf("%08x ", (**pChunk).pLink[i]);
+		printf("%-10s\t", pString_list[pItem[i].shorty_idx].data);
+		//printf("%08x\t", pItem[i].return_type_idx);
+		printf("%-40s\t", pString_list[typeList.list[pItem[i].return_type_idx]].data);
+		printf("%x ", pItem[i].parameters_off);
 		printf("\n");
 	}
 	printf("\n");
 }
 
-void print_field_ids(field_id_item *pItem, string_data_item *pString_list, type_list *pType_list, uint32_t size){
+void print_proto_type(uint32_t fp, proto_id_item *pItem, uint32_t size, string_data_item *pString_list){
+    uint32_t tmp;
+	uint32_t offset;
+	type_list *pTypeList;
+		printf("\n");
+	for(size_t i = 0; i < size; i++){
+		offset = pItem[i].parameters_off;
+		if(offset != 0){
+					printf("tmp[%d]:\n", i);
+        	lseek(fp, offset, SEEK_SET);
+        	read(fp, &tmp, sizeof(uint32_t));
+				(*pTypeList).size = tmp;
+        		(*pTypeList).list = mmap(0, sizeof(type_item) * (*pTypeList).size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);    // Allocate pType_list
+				for(size_t j = 0; j < (*pTypeList).size; j++){
+					lseek(fp, offset + sizeof(uint32_t) + (sizeof(uint16_t) * j), SEEK_SET);	// offset + size + array index(ushort size)
+					read(fp, &(*pTypeList).list[j], sizeof(uint16_t));
+					printf("%s\t", pString_list[typeList.list[(*pTypeList).list[j]]].data);
+				}
+		}
+		else{
+        	printf("tmp[%d]: NONE\n", i);
+		}
+		printf("\n");
+	}
+}
+
+void print_field_ids(field_id_item *pItem, string_data_item *pString_list, uint32_t size){
 	printf("\n<field_id_item>\nsize: %d\n", size);
 	printf("[class_idx]\t\t\t\t\t[type_idx]\t\t\t\t\t[name_idx]\n");
 	for(size_t i = 0; i < size; i++){
-		printf("%-40s\t", pType_list[pItem[i].class_idx].list);      //  printf("%08x ", (**pChunk).pLink[i]);
-		printf("%-40s\t", pType_list[pItem[i].type_idx].list);      //  printf("%08x ", (**pChunk).pLink[i]);
-		printf("%-10s\t", pString_list[pItem[i].name_idx].data);      //  printf("%08x ", (**pChunk).pLink[i]);
+		printf("%-40s\t", pString_list[typeList.list[pItem[i].class_idx]].data);
+		printf("%-40s\t", pString_list[typeList.list[pItem[i].type_idx]].data);
+		printf("%-10s\t", pString_list[pItem[i].name_idx].data);
 		printf("\n");
 	}
 	printf("\n");
 }
 
-void print_method_ids(method_id_item *pItem, string_data_item *pString_list, type_list *pType_list, uint32_t size){
+void print_method_ids(method_id_item *pItem, string_data_item *pString_list, uint32_t size){
 	printf("\n<method_id_item>\nsize: %d\n", size);
 	printf("[class_idx]\t\t\t\t\t[proto_idx]\t[name_idx]\n");
 	for(size_t i = 0; i < size; i++){
-		printf("%-40s\t", pType_list[pItem[i].class_idx].list);      //  printf("%08x ", (**pChunk).pLink[i]);
-		printf("%-10d\t", pItem[i].proto_idx);      //  printf("%08x ", (**pChunk).pLink[i]);
-		printf("%-10s\t", pString_list[pItem[i].name_idx].data);      //  printf("%08x ", (**pChunk).pLink[i]);
+		printf("%-40s\t", pString_list[typeList.list[pItem[i].class_idx]].data);
+		printf("%-10d\t", pItem[i].proto_idx); 
+		printf("%-10s\t", pString_list[pItem[i].name_idx].data);
 		printf("\n");
 	}
 	printf("\n");
 }
 
-void print_class_defs(class_def_item *pItem, string_data_item *pString_list, type_list *pType_list, uint32_t size){
+void print_class_defs(class_def_item *pItem, string_data_item *pString_list, uint32_t size){
 	enum access_flags aces_flag;
 	printf("\n<class_def_item>\nsize: %d\n", size);
 	printf("[cls_idx]\t\t\t\t\t[aces_flg]\n");
 	printf("[sprcls_idx]\t\t\t\t\t[intrf_off]\t[src_file_idx]\t\t[anttn_off]\t[cls_dt_off]\t[sttc_val_off]\n");
 	for(size_t i = 0; i < size; i++){
 		aces_flag = pItem[i].access_flags;
-		printf("%-40s\t", pType_list[pItem[i].class_idx].list);      // 
+		printf("%-40s\t", pString_list[typeList.list[pItem[i].class_idx]].data);
 		print_access_flag(aces_flag);
-		printf("\n%-40s\t", pType_list[pItem[i].superclass_idx].list);      // 
+		printf("\n%-40s\t", pString_list[typeList.list[pItem[i].superclass_idx]].data);
 		printf("%d\t\t", pItem[i].interfaces_off);      // index to type_list
 		if(pItem[i].source_file_idx == NO_INDEX){
 			printf("NO_INDEX%-10s\t", "");
@@ -122,81 +155,92 @@ void print_class_defs(class_def_item *pItem, string_data_item *pString_list, typ
 void print_access_flag(enum access_flags aces_flag){
 	if(aces_flag / ACC_DECLARED_SYNCHRONIZED == 1){
 		aces_flag %= ACC_DECLARED_SYNCHRONIZED;
-		printf("DECLARED_SYNCHRONIZED ");      //
+		printf("DECLARED_SYNCHRONIZED ");
 	}
 	if(aces_flag / ACC_CONSTRUCTOR == 1){
 		aces_flag %= ACC_CONSTRUCTOR;
-		printf("CONSTRUCTOR ");      //
+		printf("CONSTRUCTOR ");
 	}
 	if(aces_flag / unused == 1){
 		aces_flag %= unused;
 	}
 	if(aces_flag / ACC_ENUM == 1){
 		aces_flag %= ACC_ENUM;
-		printf("ENUM ");      //
+		printf("ENUM ");
 	}
 	if(aces_flag / ACC_ANNOTATION == 1){
 		aces_flag %= ACC_ANNOTATION;
-		printf("ANNOTATION ");      //
+		printf("ANNOTATION ");
 	}
 	if(aces_flag / ACC_SYNTHETIC == 1){
 		aces_flag %= ACC_SYNTHETIC;
-		printf("SYNTHETIC ");      //
+		printf("SYNTHETIC ");
 	}
 	if(aces_flag / ACC_STRICT == 1){
 		aces_flag %= ACC_STRICT;
-		printf("STRICT ");      //
+		printf("STRICT ");
 	}
 	if(aces_flag / ACC_ABSTRACT == 1){
 		aces_flag %= ACC_ABSTRACT;
-		printf("ABSTRACT ");      //
+		printf("ABSTRACT ");
 	}
 	if(aces_flag / ACC_INTERFACE == 1){
 		aces_flag %= ACC_INTERFACE;
-		printf("INTERFACE ");      //
+		printf("INTERFACE ");
 	}
 	if(aces_flag / ACC_NATIVE == 1){
 		aces_flag %= ACC_NATIVE;
-		printf("NATIVE ");      //
+		printf("NATIVE ");
 	}
 	if(aces_flag / ACC_VARARGS == 1){
 		aces_flag %= ACC_VARARGS;
-		printf("VARARGS ");      //
+		printf("VARARGS ");
 	}
 	if(aces_flag / ACC_TRANSIENT == 1){
 		aces_flag %= ACC_TRANSIENT;
-		printf("TRANSIENT ");      //
+		printf("TRANSIENT ");
 	}
 	if(aces_flag / ACC_BRIDGE == 1){
 		aces_flag %= ACC_BRIDGE;
-		printf("BRIDGE ");      //
+		printf("BRIDGE ");
 	}
 	if(aces_flag / ACC_VOLATILE == 1){
 		aces_flag %= ACC_VOLATILE;
-		printf("VOLATILE ");      //
+		printf("VOLATILE ");
 	}
 	if(aces_flag / ACC_SYNCHRONIZED == 1){
 		aces_flag %= ACC_SYNCHRONIZED;
-		printf("SYNCHRONIZED ");      //
+		printf("SYNCHRONIZED ");
 	}
 	if(aces_flag / ACC_FINAL == 1){
 		aces_flag %= ACC_FINAL;
-		printf("FINAL ");      //
+		printf("FINAL ");
 	}
 	if(aces_flag / ACC_STATIC == 1){
 		aces_flag %= ACC_STATIC;
-		printf("STATIC ");      //
+		printf("STATIC ");
 	}
 	if(aces_flag / ACC_PROTECTED == 1){
 		aces_flag %= ACC_PROTECTED;
-		printf("PROTECTED ");      //
+		printf("PROTECTED ");
 	}
 	if(aces_flag / ACC_PRIVATE == 1){
 		aces_flag %=ACC_PRIVATE ;
-		printf("PRIVATE ");      //
+		printf("PRIVATE ");
 	}
 	if(aces_flag / ACC_PUBLIC == 1){
 		aces_flag %= ACC_PUBLIC;
-		printf("PUBLIC ");      //
+		printf("PUBLIC ");
+	}
+}
+
+void print_map_list(map_list *mapList){
+	printf("\n<map list>\n");
+	printf("[type]\t[unused]\t[size]\t\t[offset]\n");
+	for(size_t i = 0; i < (*mapList).size; i++){
+		printf("%04x\t", ((*mapList).pList[i]).type);
+		printf("%04x\t\t", ((*mapList).pList[i]).unused);
+		printf("%08x\t", ((*mapList).pList[i]).size);
+		printf("%08x\n", ((*mapList).pList[i]).offset);
 	}
 }
