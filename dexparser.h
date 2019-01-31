@@ -34,6 +34,29 @@ enum access_flags{
 	ACC_DECLARED_SYNCHRONIZED = 0x20000,
 };
 
+enum type_codes{
+	TYPE_HEADER_ITEM = 0x0000,
+	TYPE_STRING_ID_ITEM = 0x0001,
+	TYPE_TYPE_ID_ITEM = 0x0002,
+	TYPE_PROTO_ID_ITEM = 0x0003,
+	TYPE_FIELD_ID_ITEM = 0x0004,
+	TYPE_METHOD_ID_ITEM = 0x0005,
+	TYPE_CLASS_DEF_ITEM = 0x0006,
+	TYPE_CALL_SITE_ID_ITEM = 0x0007,
+	TYPE_METHOD_HANDLE_ITEM = 0x0008,
+	TYPE_MAP_LIST = 0x1000,
+	TYPE_TYPE_LIST = 0x1001,
+	TYPE_ANNOTATION_SET_REF_LIST = 0x1002,
+	TYPE_ANNOTATION_SET_ITEM = 0x1003,
+	TYPE_CLASS_DATA_ITEM = 0x2000,
+	TYPE_CODE_ITEM = 0x2001,
+	TYPE_STRING_DATA_ITEM = 0x2002,
+	TYPE_DEBUG_INFO_ITEM = 0x2003,
+	TYPE_ANNOTATION_ITEM = 0x2004,
+	TYPE_ENCODED_ARRAY_ITEM = 0x2005,
+	TYPE_ANNOTATIONS_DIRECTORY_ITEM = 0x2006,
+};
+
 typedef uint8_t uleb128;
 
 typedef struct header_item{
@@ -74,6 +97,8 @@ typedef struct map_list{
 	map_item *pList;
 } map_list;
 
+typedef uint32_t string_id_item;
+
 typedef struct proto_id_item{
 	uint32_t shorty_idx;
 	uint32_t return_type_idx;
@@ -103,8 +128,6 @@ typedef struct class_def_item{
 	uint32_t static_values_off;
 } class_def_item;
 
-typedef uint32_t string_id_item;
-
 typedef struct pChunk_item{
 	uint32_t *pLink;
 	string_id_item *pString_data_off;
@@ -125,7 +148,7 @@ typedef struct method_handle_item{
 } method_handle_item;
 
 typedef struct string_data_item{
-//	uint32_t string_data_off;
+	//	uint32_t string_data_off;
 	uleb128 utf16_size;
 	uint8_t *data;
 }	string_data_item;
@@ -185,3 +208,4 @@ typedef struct file_layout{
 
 header_item *pHeader;
 map_list map;
+type_list typeList;

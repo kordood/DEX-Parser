@@ -21,10 +21,10 @@ void deleteList_string_ids_offset(string_data_item *pString_list){		// Unalloc s
 	}   
 }
 
-void initList_type(type_list *pType_list, pChunk_item *pChunk, string_data_item *pString_list){		// Input data to type_list
-    for(size_t i = 0; i < pHeader->type_ids_size; i++){
-        pType_list[i].size = pString_list[(*pChunk).pType_ids[i]].utf16_size;
-        pType_list[i].list = mmap(0, pType_list[i].size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
-        pType_list[i].list = pString_list[(*pChunk).pType_ids[i]].data;
-    }
+void init_type_list_for(type_list *pTypeList, uint32_t *pType_ids, uint32_t size){
+        (*pTypeList).size = size;
+        (*pTypeList).list = mmap(0, sizeof(type_item) * size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);    // Allocate pType_list
+        for(size_t i = 0; i < (*pTypeList).size; i++){
+            (*pTypeList).list[i] = pType_ids[i];
+        }
 }
