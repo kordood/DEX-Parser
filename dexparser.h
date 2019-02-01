@@ -194,7 +194,7 @@ typedef struct annotation_element{
 } annotation_element;
 
 typedef struct file_layout{
-	header_item header;
+	header_item *pHeader;
 	string_id_item *string_ids;
 	//type_id_item *type_ids;
 	proto_id_item *proto_ids;
@@ -206,6 +206,7 @@ typedef struct file_layout{
 	uint8_t *link_data;
 } file_layout;
 
-header_item *pHeader;
+file_layout *pFileLayout;
+//header_item *pHeader;
 map_list map;
 type_list typeList;

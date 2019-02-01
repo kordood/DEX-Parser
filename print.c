@@ -2,18 +2,19 @@
 
 //using typeList(string view) example: printf("%-40s\t", pString_list[(*pTypeList).list[pItem[i].return_type_idx]].data);
 
-void print_all(uint32_t fp, pChunk_item **pChunk, string_data_item *pString_list, map_list *mapList){
-	print_string_item(pString_list, pHeader->string_ids_size);
+void print_all(uint32_t fp, pChunk_item **pChunk, string_data_item *pString_list, type_list *paramTypeList, map_list *mapList){
+	print_string_item(pString_list, (*pFileLayout).pHeader->string_ids_size);
 	print_type_list(pString_list);
-	print_link((**pChunk).pLink, pHeader->link_size);
+	print_link((**pChunk).pLink, (*pFileLayout).pHeader->link_size);
 	/* useless
-	print_string_ids((**pChunk).pString_data_off, pHeader->string_ids_size);
-	print_type_ids((**pChunk).pType_ids, pString_list, pHeader->type_ids_size);
-	*/
-	print_proto_ids((**pChunk).pProto_ids, pString_list, pHeader->proto_ids_size);
-	print_field_ids((**pChunk).pField_ids, pString_list, pHeader->field_ids_size);
-	print_method_ids((**pChunk).pMethod_ids, pString_list, pHeader->method_ids_size);
-	print_class_defs((**pChunk).pClass_defs, pString_list, pHeader->class_defs_size);
+	   print_string_ids((**pChunk).pString_data_off, (*pFileLayout).pHeader->string_ids_size);
+	   print_type_ids((**pChunk).pType_ids, pString_list, (*pFileLayout).pHeader->type_ids_size);
+	 */
+	print_proto_ids((**pChunk).pProto_ids, pString_list, (*pFileLayout).pHeader->proto_ids_size);
+	print_proto_param(paramTypeList, pString_list, (*pFileLayout).pHeader->proto_ids_size);
+	print_field_ids((**pChunk).pField_ids, pString_list, (*pFileLayout).pHeader->field_ids_size);
+	print_method_ids((**pChunk).pMethod_ids, pString_list, (*pFileLayout).pHeader->method_ids_size);
+	print_class_defs((**pChunk).pClass_defs, pString_list, (*pFileLayout).pHeader->class_defs_size);
 	print_map_list(mapList);
 }
 
@@ -77,27 +78,17 @@ void print_proto_ids(proto_id_item *pItem, string_data_item *pString_list, uint3
 	printf("\n");
 }
 
-void print_proto_type(uint32_t fp, proto_id_item *pItem, uint32_t size, string_data_item *pString_list){
-    uint32_t tmp;
-	uint32_t offset;
-	type_list *pTypeList;
-		printf("\n");
+void print_proto_param(type_list *pTypeList, string_data_item *pString_list, uint32_t size){
+	printf("\n");
 	for(size_t i = 0; i < size; i++){
-		offset = pItem[i].parameters_off;
-		if(offset != 0){
-					printf("tmp[%d]:\n", i);
-        	lseek(fp, offset, SEEK_SET);
-        	read(fp, &tmp, sizeof(uint32_t));
-				(*pTypeList).size = tmp;
-        		(*pTypeList).list = mmap(0, sizeof(type_item) * (*pTypeList).size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);    // Allocate pType_list
-				for(size_t j = 0; j < (*pTypeList).size; j++){
-					lseek(fp, offset + sizeof(uint32_t) + (sizeof(uint16_t) * j), SEEK_SET);	// offset + size + array index(ushort size)
-					read(fp, &(*pTypeList).list[j], sizeof(uint16_t));
-					printf("%s\t", pString_list[typeList.list[(*pTypeList).list[j]]].data);
-				}
+		if(pTypeList[i].list != '\0'){
+			printf("tmp[%d]:\n", i);
+			for(size_t j = 0; j < pTypeList[i].size; j++){
+				printf("%s\t", pString_list[typeList.list[pTypeList[i].list[j]]].data);
+			}
 		}
 		else{
-        	printf("tmp[%d]: NONE\n", i);
+			printf("tmp[%d]: NONE\n", i);
 		}
 		printf("\n");
 	}
