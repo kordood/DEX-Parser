@@ -1,6 +1,6 @@
 #include "dexparser.h"
 
-void print_all(uint32_t fp, pChunk_item **pChunk, string_data_item *pString_list, type_list *paramTypeList, map_list *mapList);
+void print_all(uint32_t fp, file_layout **pChunk, string_data_item *pString_list, type_list *paramTypeList, map_list *mapList);
 void print_string_item(string_data_item *pString_list, uint32_t size);
 void print_type_list(string_data_item *pString_list);
 void print_link(uint32_t *pItem, uint32_t size);
