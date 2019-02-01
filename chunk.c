@@ -1,5 +1,20 @@
 #include "chunk.h"
 
+void make_map_list(uint32_t fp, map_list *mapList){
+    lseek(fp, pHeader->map_off, SEEK_SET);	// map size doesn't exist in header;
+    read(fp, &(*mapList).size, sizeof(uint32_t));
+
+	(*mapList).pList = (uint32_t *)mmap(0, sizeof(map_item) * (*mapList).size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+	for(size_t i = 0; i < (*mapList).size; i++){
+		lseek(fp, pHeader->map_off + sizeof(uint32_t) + (sizeof(map_item) * i), SEEK_SET);
+		read(fp, &(*mapList).pList[i], sizeof(map_item));
+	}
+}
+
+void delete_map_list(map_list *mapList){
+	munmap((*mapList).pList, sizeof(map_item) * (*mapList).size);
+}
+
 void make_chunk(uint32_t fp, file_layout **pFileLayout){
     (**pFileLayout).pLink = (uint32_t *)mmap(0, sizeof(uint32_t) * pHeader->link_size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
     (**pFileLayout).pString_ids = (uint32_t *)mmap(0, sizeof(string_id_item) * pHeader->string_ids_size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
@@ -34,20 +49,6 @@ void delete_chunk(file_layout **pFileLayout){
 	munmap((**pFileLayout).pClass_defs, sizeof(class_def_item) * pHeader->class_defs_size);
 }
 
-void make_map_list(uint32_t fp, map_list *mapList){
-    lseek(fp, pHeader->map_off, SEEK_SET);	// map size doesn't exist in header;
-    read(fp, &(*mapList).size, sizeof(uint32_t));
-
-	(*mapList).pList = (uint32_t *)mmap(0, sizeof(map_item) * (*mapList).size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
-	for(size_t i = 0; i < (*mapList).size; i++){
-		lseek(fp, pHeader->map_off + sizeof(uint32_t) + (sizeof(map_item) * i), SEEK_SET);
-		read(fp, &(*mapList).pList[i], sizeof(map_item));
-	}
-}
-
-void delete_map_list(map_list *mapList){
-	munmap((*mapList).pList, sizeof(map_item) * (*mapList).size);
-}
 /* maybe not using
 void print_chunk(uint32_t *pItem, uint32_t type_size, uint32_t size){
 	printf("print size: %d\n", size);

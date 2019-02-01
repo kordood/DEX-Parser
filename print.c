@@ -2,20 +2,21 @@
 
 //using typeList(string view) example: printf("%-40s\t", pString_list[(*pTypeList).list[pItem[i].return_type_idx]].data);
 
-void print_all(uint32_t fp, file_layout **pFileLayout, string_data_item *pString_list, type_list *paramTypeList, map_list *mapList){
-	print_string_item(pString_list, pHeader->string_ids_size);
-	print_type_list(pString_list);
+void print_all(uint32_t fp, file_layout **pFileLayout, string_data_item *pString_list, type_list *typeList, type_list *paramTypeList, map_list *mapList){
+	print_map_list(mapList);
 	print_link((**pFileLayout).pLink, pHeader->link_size);
+	print_string_item(pString_list, pHeader->string_ids_size);
+	print_type_ids((**pFileLayout).pType_ids, pString_list, pHeader->type_ids_size);
+	print_type_list(pString_list, typeList);
 	/* useless
 	   print_string_ids((**pFileLayout).pString_data_off, (*pFileLayout).pHeader->string_ids_size);
 	   print_type_ids((**pFileLayout).pType_ids, pString_list, (*pFileLayout).pHeader->type_ids_size);
 	 */
-	print_proto_ids((**pFileLayout).pProto_ids, pString_list, pHeader->proto_ids_size);
-	print_proto_param(paramTypeList, pString_list, pHeader->proto_ids_size);
-	print_field_ids((**pFileLayout).pField_ids, pString_list, pHeader->field_ids_size);
-	print_method_ids((**pFileLayout).pMethod_ids, pString_list, pHeader->method_ids_size);
-	print_class_defs((**pFileLayout).pClass_defs, pString_list, pHeader->class_defs_size);
-	print_map_list(mapList);
+	print_proto_ids((**pFileLayout).pProto_ids, pString_list, typeList, pHeader->proto_ids_size);
+	print_proto_param(paramTypeList, pString_list, typeList, pHeader->proto_ids_size);
+	print_field_ids((**pFileLayout).pField_ids, pString_list, typeList, pHeader->field_ids_size);
+	print_method_ids((**pFileLayout).pMethod_ids, pString_list, typeList, pHeader->method_ids_size);
+	print_class_defs((**pFileLayout).pClass_defs, pString_list, typeList, pHeader->class_defs_size);
 }
 
 void print_string_item(string_data_item *pString_list, uint32_t size){
@@ -29,10 +30,10 @@ void print_string_item(string_data_item *pString_list, uint32_t size){
 	}
 }
 
-void print_type_list(string_data_item *pString_list){
+void print_type_list(string_data_item *pString_list, type_list *typeList){
 	printf("\n<type list>\n");
-	for(size_t i = 0; i < typeList.size; i++){
-		printf("%d: %s\n", i, pString_list[typeList.list[i]].data);
+	for(size_t i = 0; i < (*typeList).size; i++){
+		printf("%d: %s\n", i, pString_list[(*typeList).list[i]].data);
 	}
 }
 
@@ -65,26 +66,26 @@ void print_type_ids(uint32_t *pItem, string_data_item *pString_list, uint32_t si
 	}   
 }
 
-void print_proto_ids(proto_id_item *pItem, string_data_item *pString_list, uint32_t size){
+void print_proto_ids(proto_id_item *pItem, string_data_item *pString_list, type_list *typeList, uint32_t size){
 	printf("\n<proto_id_item>\nsize: %d\n", size);
 	printf("[shorty_idx]\t[return_type_idx]\t\t\t\t[parameters_off]\n");
 	for(size_t i = 0; i < size; i++){
 		printf("%-10s\t", pString_list[pItem[i].shorty_idx].data);
 		//printf("%08x\t", pItem[i].return_type_idx);
-		printf("%-40s\t", pString_list[typeList.list[pItem[i].return_type_idx]].data);
+		printf("%-40s\t", pString_list[(*typeList).list[pItem[i].return_type_idx]].data);
 		printf("%x ", pItem[i].parameters_off);
 		printf("\n");
 	}
 	printf("\n");
 }
 
-void print_proto_param(type_list *pTypeList, string_data_item *pString_list, uint32_t size){
+void print_proto_param(type_list *pTypeList, string_data_item *pString_list, type_list *typeList, uint32_t size){
 	printf("\n");
 	for(size_t i = 0; i < size; i++){
 		if(pTypeList[i].list != '\0'){
 			printf("tmp[%d]:\n", i);
 			for(size_t j = 0; j < pTypeList[i].size; j++){
-				printf("%s\t", pString_list[typeList.list[pTypeList[i].list[j]]].data);
+				printf("%s\t", pString_list[(*typeList).list[pTypeList[i].list[j]]].data);
 			}
 		}
 		else{
@@ -94,23 +95,23 @@ void print_proto_param(type_list *pTypeList, string_data_item *pString_list, uin
 	}
 }
 
-void print_field_ids(field_id_item *pItem, string_data_item *pString_list, uint32_t size){
+void print_field_ids(field_id_item *pItem, string_data_item *pString_list, type_list *typeList, uint32_t size){
 	printf("\n<field_id_item>\nsize: %d\n", size);
 	printf("[class_idx]\t\t\t\t\t[type_idx]\t\t\t\t\t[name_idx]\n");
 	for(size_t i = 0; i < size; i++){
-		printf("%-40s\t", pString_list[typeList.list[pItem[i].class_idx]].data);
-		printf("%-40s\t", pString_list[typeList.list[pItem[i].type_idx]].data);
+		printf("%-40s\t", pString_list[(*typeList).list[pItem[i].class_idx]].data);
+		printf("%-40s\t", pString_list[(*typeList).list[pItem[i].type_idx]].data);
 		printf("%-10s\t", pString_list[pItem[i].name_idx].data);
 		printf("\n");
 	}
 	printf("\n");
 }
 
-void print_method_ids(method_id_item *pItem, string_data_item *pString_list, uint32_t size){
+void print_method_ids(method_id_item *pItem, string_data_item *pString_list, type_list *typeList, uint32_t size){
 	printf("\n<method_id_item>\nsize: %d\n", size);
 	printf("[class_idx]\t\t\t\t\t[proto_idx]\t[name_idx]\n");
 	for(size_t i = 0; i < size; i++){
-		printf("%-40s\t", pString_list[typeList.list[pItem[i].class_idx]].data);
+		printf("%-40s\t", pString_list[(*typeList).list[pItem[i].class_idx]].data);
 		printf("%-10d\t", pItem[i].proto_idx); 
 		printf("%-10s\t", pString_list[pItem[i].name_idx].data);
 		printf("\n");
@@ -118,16 +119,16 @@ void print_method_ids(method_id_item *pItem, string_data_item *pString_list, uin
 	printf("\n");
 }
 
-void print_class_defs(class_def_item *pItem, string_data_item *pString_list, uint32_t size){
+void print_class_defs(class_def_item *pItem, string_data_item *pString_list, type_list *typeList, uint32_t size){
 	enum access_flags aces_flag;
 	printf("\n<class_def_item>\nsize: %d\n", size);
 	printf("[cls_idx]\t\t\t\t\t[aces_flg]\n");
 	printf("[sprcls_idx]\t\t\t\t\t[intrf_off]\t[src_file_idx]\t\t[anttn_off]\t[cls_dt_off]\t[sttc_val_off]\n");
 	for(size_t i = 0; i < size; i++){
 		aces_flag = pItem[i].access_flags;
-		printf("%-40s\t", pString_list[typeList.list[pItem[i].class_idx]].data);
+		printf("%-40s\t", pString_list[(*typeList).list[pItem[i].class_idx]].data);
 		print_access_flag(aces_flag);
-		printf("\n%-40s\t", pString_list[typeList.list[pItem[i].superclass_idx]].data);
+		printf("\n%-40s\t", pString_list[(*typeList).list[pItem[i].superclass_idx]].data);
 		printf("%d\t\t", pItem[i].interfaces_off);      // index to type_list
 		if(pItem[i].source_file_idx == NO_INDEX){
 			printf("NO_INDEX%-10s\t", "");

@@ -199,6 +199,7 @@ typedef struct file_layout{
 	uint32_t *pLink;
 	string_id_item *pString_ids;
 	uint32_t *pType_ids;
+	type_list typeList;
 	proto_id_item *pProto_ids;
 	field_id_item *pField_ids;
 	method_id_item *pMethod_ids;
@@ -211,4 +212,3 @@ typedef struct file_layout{
 //file_layout *pFileLayout;
 header_item *pHeader;
 map_list map;
-type_list typeList;
