@@ -4,7 +4,7 @@ void initList_string_ids_offset(uint32_t fp, string_data_item *pString_list, pCh
 	uint32_t offset;
 	uleb128 size;
 
-	for(size_t i = 0; i < pHeader->string_ids_size; i++){
+	for(size_t i = 0; i < (*pFileLayout).pHeader->string_ids_size; i++){
 		offset = (**pChunk).pString_data_off[i];
 		lseek(fp, offset, SEEK_SET);
 		read(fp, &size, sizeof(uleb128));

@@ -1,7 +1,7 @@
 #include "delete_item.h"
 
 void deleteList_string_ids_offset(string_data_item *pString_list){      // Unalloc string list
-    for(size_t i = 0; i < pHeader->string_ids_size; i++){
+    for(size_t i = 0; i < (*pFileLayout).pHeader->string_ids_size; i++){
         munmap(pString_list[i].data, pString_list[i].utf16_size);
     }   
 }

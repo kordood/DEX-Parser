@@ -3,18 +3,18 @@
 //using typeList(string view) example: printf("%-40s\t", pString_list[(*pTypeList).list[pItem[i].return_type_idx]].data);
 
 void print_all(uint32_t fp, pChunk_item **pChunk, string_data_item *pString_list, type_list *paramTypeList, map_list *mapList){
-	print_string_item(pString_list, pHeader->string_ids_size);
+	print_string_item(pString_list, (*pFileLayout).pHeader->string_ids_size);
 	print_type_list(pString_list);
-	print_link((**pChunk).pLink, pHeader->link_size);
+	print_link((**pChunk).pLink, (*pFileLayout).pHeader->link_size);
 	/* useless
-	   print_string_ids((**pChunk).pString_data_off, pHeader->string_ids_size);
-	   print_type_ids((**pChunk).pType_ids, pString_list, pHeader->type_ids_size);
+	   print_string_ids((**pChunk).pString_data_off, (*pFileLayout).pHeader->string_ids_size);
+	   print_type_ids((**pChunk).pType_ids, pString_list, (*pFileLayout).pHeader->type_ids_size);
 	 */
-	print_proto_ids((**pChunk).pProto_ids, pString_list, pHeader->proto_ids_size);
-	print_proto_param(paramTypeList, pString_list, pHeader->proto_ids_size);
-	print_field_ids((**pChunk).pField_ids, pString_list, pHeader->field_ids_size);
-	print_method_ids((**pChunk).pMethod_ids, pString_list, pHeader->method_ids_size);
-	print_class_defs((**pChunk).pClass_defs, pString_list, pHeader->class_defs_size);
+	print_proto_ids((**pChunk).pProto_ids, pString_list, (*pFileLayout).pHeader->proto_ids_size);
+	print_proto_param(paramTypeList, pString_list, (*pFileLayout).pHeader->proto_ids_size);
+	print_field_ids((**pChunk).pField_ids, pString_list, (*pFileLayout).pHeader->field_ids_size);
+	print_method_ids((**pChunk).pMethod_ids, pString_list, (*pFileLayout).pHeader->method_ids_size);
+	print_class_defs((**pChunk).pClass_defs, pString_list, (*pFileLayout).pHeader->class_defs_size);
 	print_map_list(mapList);
 }
 
