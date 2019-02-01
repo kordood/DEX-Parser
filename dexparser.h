@@ -128,18 +128,6 @@ typedef struct class_def_item{
 	uint32_t static_values_off;
 } class_def_item;
 
-typedef struct pChunk_item{
-	uint32_t *pLink;
-	string_id_item *pString_data_off;
-	uint32_t *pMap;
-	uint32_t *pType_ids;
-	proto_id_item *pProto_ids;
-	field_id_item *pField_ids;
-	method_id_item *pMethod_ids;
-	class_def_item *pClass_defs;
-	uint32_t *pData;
-} pChunk_item;
-
 typedef struct method_handle_item{
 	uint16_t method_handle_type;
 	uint16_t unused;
@@ -193,20 +181,34 @@ typedef struct annotation_element{
 	encoded_value value;
 } annotation_element;
 
+typedef struct pChunk_item{
+	uint32_t *pLink;
+	string_id_item *pString_data_off;
+	uint32_t *pMap;
+	uint32_t *pType_ids;
+	proto_id_item *pProto_ids;
+	field_id_item *pField_ids;
+	method_id_item *pMethod_ids;
+	class_def_item *pClass_defs;
+	uint32_t *pData;
+} pChunk_item;
+
 typedef struct file_layout{
 	header_item *pHeader;
-	string_id_item *string_ids;
-	//type_id_item *type_ids;
-	proto_id_item *proto_ids;
-	field_id_item *field_ids;
-	method_id_item *method_ids;
-	class_def_item *class_defs;
-	method_handle_item *method_handles;
-	uint8_t *data;
-	uint8_t *link_data;
+	map_list mapList;
+	uint32_t *pLink;
+	string_id_item *pString_ids;
+	uint32_t *pType_ids;
+	proto_id_item *pProto_ids;
+	field_id_item *pField_ids;
+	method_id_item *pMethod_ids;
+	class_def_item *pClass_defs;
+	method_handle_item *pMethod_handles;
+	uint8_t *pDdata;
+	uint8_t *pLink_data;
 } file_layout;
 
-file_layout *pFileLayout;
-//header_item *pHeader;
+//file_layout *pFileLayout;
+header_item *pHeader;
 map_list map;
 type_list typeList;
