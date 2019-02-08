@@ -11,6 +11,8 @@ int main(){
 //	map_list mapList;
 	string_data_item *pString_list;
 	type_list *proto_param;
+	type_list *class_intrf;
+//	anot_dir_item *anotDir;
 
 
 	fp = open("classes.dex", O_RDONLY);
@@ -19,8 +21,9 @@ int main(){
 	}
 	else{
 		isLittleEndian(fp);
-		header_size = getHeaderSize(fp);
 		pFileLayout = mmap(0, sizeof(file_layout), PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);     // Allocate pFileLayout
+
+		header_size = getHeaderSize(fp);
 		pHeader = mmap(0, sizeof(header_item), PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);     // Allocate pHeader
 		header_slice(fp, header_size);		// Input data to header
 		print_header();
@@ -36,8 +39,15 @@ int main(){
 		proto_param = mmap(0, sizeof(type_list) * pHeader->type_ids_size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);	// Allocate pString_list
 		init_proto_param(fp, proto_param, (*pFileLayout).pProto_ids, pHeader->proto_ids_size);
 
-		print_all(fp, &pFileLayout, pString_list, &(*pFileLayout).typeList, proto_param, &(*pFileLayout).mapList);	// print all items
-		print_class_defs((*pFileLayout).pClass_defs, pString_list, &(*pFileLayout).typeList, pHeader->class_defs_size);
+		class_intrf = mmap(0, sizeof(type_list) * pHeader->type_ids_size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);	// Allocate pString_list
+		init_class_intrf(fp, class_intrf, (*pFileLayout).pClass_defs, pHeader->class_defs_size);
+		(*pFileLayout).pAnotDir = mmap(0, sizeof(anot_dir_item) * pHeader->class_defs_size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);	// Allocate pString_list
+		init_anot_dir_item(fp, (*pFileLayout).pAnotDir, (*pFileLayout).pClass_defs , pHeader->class_defs_size);
+		print_all(fp, &pFileLayout, pString_list, proto_param, &(*pFileLayout).mapList);	// print all items
+		//print_class_defs((*pFileLayout).pClass_defs, pString_list, &(*pFileLayout).typeList, pHeader->class_defs_size);
+		//print_anot_dir(anotDir, pHeader->class_defs_size);
+		//print_class_intrf(class_intrf, pString_list, &(*pFileLayout).typeList, pHeader->class_defs_size);
+
 
 
 		// unmapping 
