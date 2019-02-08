@@ -98,6 +98,7 @@ typedef struct map_list{
 } map_list;
 
 typedef uint32_t string_id_item;
+typedef uint32_t type_id_item;
 
 typedef struct proto_id_item{
 	uint32_t shorty_idx;
@@ -147,6 +148,31 @@ typedef struct type_list{
 	uint32_t size;
 	type_item *list;
 } type_list;
+
+typedef struct parameter_annotation{
+	uint32_t method_idx;
+	uint32_t annotations_off;
+} param_anot;
+
+typedef struct method_annotation{
+	uint32_t method_idx;
+	uint32_t annotations_off;
+} method_anot;
+
+typedef struct field_annotation{
+	uint32_t field_idx;
+	uint32_t annotations_off;
+} field_anot;
+
+typedef struct annotations_directory_item{
+	uint32_t class_annotations_off;
+    uint32_t fields_size;
+    uint32_t annotated_methods_size;
+    uint32_t annotated_parameters_size;
+    field_anot *field_annotations;
+    method_anot *method_annotations;
+    param_anot *parameter_annotations;
+} anot_dir_item;
 
 // need to learn about uleb128
 typedef struct encoded_field{
@@ -198,7 +224,7 @@ typedef struct file_layout{
 	map_list mapList;
 	uint32_t *pLink;
 	string_id_item *pString_ids;
-	uint32_t *pType_ids;
+	type_id_item *pType_ids;
 	type_list typeList;
 	proto_id_item *pProto_ids;
 	field_id_item *pField_ids;
@@ -207,6 +233,7 @@ typedef struct file_layout{
 	method_handle_item *pMethod_handles;
 	uint8_t *pDdata;
 	uint8_t *pLink_data;
+	anot_dir_item *pAnotDir;
 } file_layout;
 
 //file_layout *pFileLayout;
